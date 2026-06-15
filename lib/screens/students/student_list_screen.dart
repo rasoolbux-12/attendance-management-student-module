@@ -239,21 +239,54 @@ class _StudentListScreenState extends State<StudentListScreen> {
                                   },
 
                                   child: Card(
-                                    elevation: 2,
+                                    elevation: 3,
                                     margin: const EdgeInsets.symmetric(
                                       horizontal: 12,
                                       vertical: 6,
                                     ),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(16),
                                     ),
                                     child: ListTile(
-                                      title: Text(student.name),
+                                      leading: CircleAvatar(
+                                        backgroundColor: const Color(
+                                          0xFFFF6F00,
+                                        ),
+                                        child: Text(
+                                          student.name.isNotEmpty
+                                              ? student.name[0].toUpperCase()
+                                              : "?",
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
 
-                                      subtitle: Text(
-                                        "Roll No: ${student.rollNumber}\n"
-                                        "Class: ${student.className}\n"
-                                        "Phone: ${student.phoneNumber}",
+                                      title: Text(
+                                        student.name,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+
+                                      subtitle: Padding(
+                                        padding: const EdgeInsets.only(top: 6),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              "🎓 Roll No: ${student.rollNumber}",
+                                            ),
+                                            Text(
+                                              "🏫 Class: ${student.className}",
+                                            ),
+                                            Text("📞 ${student.phoneNumber}"),
+                                          ],
+                                        ),
                                       ),
 
                                       trailing: IconButton(
