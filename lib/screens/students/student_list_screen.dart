@@ -1,0 +1,245 @@
+import 'package:flutter/material.dart';
+import '../../models/student_model.dart';
+import '../../services/student_service.dart';
+import 'add_student_screen.dart';
+import 'edit_student_screen.dart';
+
+class StudentListScreen extends StatefulWidget {
+  const StudentListScreen({super.key});
+
+  @override
+  State<StudentListScreen> createState() => _StudentListScreenState();
+}
+
+class _StudentListScreenState extends State<StudentListScreen> {
+  final StudentService _studentService = StudentService();
+
+  final TextEditingController _searchController = TextEditingController();
+
+  String _search = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Students")),
+
+      body: Column(
+        children: [
+          // Search Bar
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search Student',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _search = value;
+                });
+              },
+            ),
+          ),
+
+          // Student List
+          Expanded(
+            child: StreamBuilder<List<Student>>(
+              stream: _studentService.getStudentsStream(),
+
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final students = snapshot.data ?? [];
+
+                final filteredStudents = students.where((student) {
+                  final search = _search.trim().toLowerCase();
+
+                  return student.name.toLowerCase().contains(search) ||
+                      student.rollNumber.toLowerCase().contains(search);
+                }).toList();
+
+                return Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        "Total Students: ${filteredStudents.length}",
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+
+                    Expanded(
+                      child: students.isEmpty
+                          ? const Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.people_outline,
+                                    size: 64,
+                                    color: Color(0xFF90A4AE),
+                                  ),
+                                  SizedBox(height: 12),
+                                  Text(
+                                    "No students added yet.",
+                                    style: TextStyle(fontSize: 18),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : filteredStudents.isEmpty
+                          ? const Center(
+                              child: Text(
+                                "No student found",
+                                style: TextStyle(fontSize: 18),
+                              ),
+                            )
+                          : ListView.builder(
+                              itemCount: filteredStudents.length,
+                              itemBuilder: (context, index) {
+                                final student = filteredStudents[index];
+
+                                return Dismissible(
+                                  key: Key(student.id!),
+
+                                  direction: DismissDirection.endToStart,
+
+                                  background: Container(
+                                    alignment: Alignment.centerRight,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                    ),
+                                    color: Colors.red,
+
+                                    child: const Icon(
+                                      Icons.delete,
+                                      color: Colors.white,
+                                      size: 30,
+                                    ),
+                                  ),
+
+                                  confirmDismiss: (direction) async {
+                                    return await showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: const Text("Delete Student"),
+
+                                          content: Text(
+                                            "Delete ${student.name}?",
+                                          ),
+
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context, false);
+                                              },
+                                              child: const Text("Cancel"),
+                                            ),
+
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context, true);
+                                              },
+                                              child: const Text("Delete"),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
+
+                                  onDismissed: (direction) async {
+                                    await _studentService.deleteStudent(
+                                      student.id!,
+                                    );
+
+                                    if (!mounted) return;
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          "${student.name} deleted",
+                                        ),
+                                      ),
+                                    );
+                                  },
+
+                                  child: Card(
+                                    elevation: 2,
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: ListTile(
+                                      title: Text(student.name),
+
+                                      subtitle: Text(
+                                        "Roll No: ${student.rollNumber}\n"
+                                        "Class: ${student.className}\n"
+                                        "Phone: ${student.phoneNumber}",
+                                      ),
+
+                                      trailing: IconButton(
+                                        icon: const Icon(
+                                          Icons.edit,
+                                          color: Color(0xFF1565C0),
+                                        ),
+
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) => EditStudentScreen(
+                                                student: student,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFFFF6F00),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AddStudentScreen()),
+          );
+        },
+        child: const Icon(Icons.person_add, color: Colors.white),
+      ),
+    );
+  }
+}
