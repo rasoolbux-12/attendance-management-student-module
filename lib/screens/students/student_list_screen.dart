@@ -45,10 +45,32 @@ class _StudentListScreenState extends State<StudentListScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Search Student',
-                prefixIcon: const Icon(Icons.search),
+                hintText: 'Search students...',
+                hintStyle: const TextStyle(color: Colors.grey),
+
+                prefixIcon: const Icon(Icons.search, color: Color(0xFFFF6F00)),
+
+                filled: true,
+                fillColor: const Color(0xFFF5F5F5),
+
+                contentPadding: const EdgeInsets.symmetric(vertical: 16),
+
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(
+                    color: Color(0xFFFF6F00),
+                    width: 2,
+                  ),
                 ),
               ),
               onChanged: (value) {
