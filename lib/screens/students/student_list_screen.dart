@@ -292,7 +292,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
                                       trailing: IconButton(
                                         icon: const Icon(
                                           Icons.edit,
-                                          color: Color(0xFF1565C0),
+                                          color: Color(0xFFFF6F00),
                                         ),
 
                                         onPressed: () {
