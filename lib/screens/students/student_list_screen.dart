@@ -27,7 +27,15 @@ class _StudentListScreenState extends State<StudentListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Students")),
+      appBar: AppBar(
+        title: const Text(
+          "Student Management",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        backgroundColor: const Color(0xFFFF6F00),
+        foregroundColor: Colors.white,
+      ),
 
       body: Column(
         children: [
